@@ -307,7 +307,7 @@ class NowPlayingModel implements TickObserver, TrackChangeObserver, NowPlayingOb
         {
             $np_row = $this->now_playing_in_queue->getRow();
             $cd_row = $candidate_now_playing_track->getRow();
-            if($np_row != $cd_row && $candidate_now_playing_track->getStartTime())
+            if($np_row != $cd_row && $candidate_now_playing_track->getPlayTime())
             {
                 $new_track = true;
             }
