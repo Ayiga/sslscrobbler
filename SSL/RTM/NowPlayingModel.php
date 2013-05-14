@@ -307,7 +307,7 @@ class NowPlayingModel implements TickObserver, TrackChangeObserver, NowPlayingOb
         {
             $np_row = $this->now_playing_in_queue->getRow();
             $cd_row = $candidate_now_playing_track->getRow();
-            if($np_row != $cd_row && $candidate_now_playing_track->getPlayTime()  && $candidate_now_playing_track->getPlayed())
+            if($np_row != $cd_row && $candidate_now_playing_track->getPlayTime()  && $candidate_now_playing_track->getPlayed() )
             {
                 $new_track = true;
             }
@@ -323,10 +323,22 @@ class NowPlayingModel implements TickObserver, TrackChangeObserver, NowPlayingOb
             
             // keep the now playing model
             $this->now_playing_in_queue = $scrobble_model;
-            
+
+            global $observerDelays; //Load the delays
+            $delay = 0;
+
+            if(isset($observerDelays['NowPlayingObserver'])){
+                $delay = $observerDelays['NowPlayingObserver'];
+            }
+
             // notify observers (Growl, etc)
-            $this->notifyNowPlayingObservers($candidate_now_playing_track);
+            //$this->notifyNowPlayingObservers($candidate_now_playing_track);
+
+            $thread = new NotificationDelayThread( $this, 'notifyNowPlayingObservers', array( $candidate_now_playing_track ), $delay);
+            $thread->start(); //Start the thread
         }
+
+        NotificationDelayThread::cleanUp();
     }
     
     protected function notifyNowPlayingObservers(SSLTrack $track=null)
